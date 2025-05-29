@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>ระบบลงเวลาเข้าออกงาน</title>
+  <title>ระบบลงเวลาเข้าออกงาน (Debug)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body { font-family: sans-serif; text-align: center; padding: 1rem; }
@@ -11,33 +11,12 @@
   </style>
 </head>
 <body>
-  <h2>ลงเวลาเข้า/ออกงาน</h2>
+  <h2>ลงเวลาเข้า/ออกงาน (โหมดตรวจสอบกล้อง)</h2>
   <select id="employee">
     <option value="">เลือกชื่อพนักงาน</option>
     <option value="นัท">นัท</option>
     <option value="นัตตี้">นัตตี้</option>
     <option value="Yoko">Yoko</option>
-    <option value="น้ำ">น้ำ</option>
-    <option value="อ้วน">อ้วน</option>
-    <option value="โจช่าง">โจช่าง</option>
-    <option value="ลุงปอ">ลุงปอ</option>
-    <option value="ลิน">ลิน</option>
-    <option value="วิน ชาย">วิน ชาย</option>
-    <option value="ซัน">ซัน</option>
-    <option value="นารี">นารี</option>
-    <option value="เชอรี่">เชอรี่</option>
-    <option value="ทานุ">ทานุ</option>
-    <option value="เมย์ คนใหม่">เมย์ คนใหม่</option>
-    <option value="วิน หญิง">วิน หญิง</option>
-    <option value="เมียะ">เมียะ</option>
-    <option value="เมย์">เมย์</option>
-    <option value="ธรรมรงค์">ธรรมรงค์</option>
-    <option value="ดู รปภ">ดู รปภ</option>
-    <option value="วดี">วดี</option>
-    <option value="คิง">คิง</option>
-    <option value="ตุ้ย">ตุ้ย</option>
-    <option value="วาวา">วาวา</option>
-    <option value="โซ">โซ</option>
   </select>
 
   <button onclick="openCamera()">📸 ถ่ายรูป</button>
@@ -57,23 +36,33 @@
     let stream = null;
 
     function openCamera() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert("❌ เบราว์เซอร์ของคุณไม่รองรับการเปิดกล้อง");
+        return;
+      }
+
       navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
         .then(s => {
           stream = s;
           video.srcObject = stream;
           video.style.display = "block";
+          console.log("✅ กล้องเปิดแล้ว");
         })
-        .catch(err => alert("ไม่สามารถเปิดกล้องได้: " + err.message));
+        .catch(err => {
+          alert("❌ ไม่สามารถเปิดกล้องได้: " + err.message);
+          console.error("Camera error:", err);
+        });
     }
 
     function capture() {
-      if (!stream) return alert("กล้องยังไม่เปิด");
+      if (!stream) return alert("⚠️ กล้องยังไม่เปิด");
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       canvas.getContext("2d").drawImage(video, 0, 0);
       imageData = canvas.toDataURL("image/jpeg", 0.85);
       preview.src = imageData;
       preview.style.display = "block";
+      console.log("📸 ถ่ายภาพแล้ว");
     }
 
     function submitTime(action) {
@@ -85,33 +74,17 @@
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
 
-        const officeLat = 13.738127102794989;
-        const officeLng = 100.57513252231085;
-        const distance = getDistance(lat, lng, officeLat, officeLng);
-
-        if (distance > 200) return alert("คุณอยู่นอกพื้นที่สำนักงาน");
-
-        fetch("https://script.google.com/macros/s/AKfycbyKzPezH4cIXus9tW0LsGp5vy5rDnY6EEmSv7hxmWthwiorqNTjTz4VSSnU9WB-3ofCGA/exec, {
+        fetch("https://script.google.com/macros/s/AKfycbyKzPezH4cIXus9tW0LsGp5vy5rDnY6EEmSv7hxmWthwiorqNTjTz4VSSnU9WB-3ofCGA/exec", {
           method: "POST",
           body: JSON.stringify({ name, action, lat, lng, image: imageData }),
           headers: { "Content-Type": "application/json" }
         })
         .then(res => res.text())
-        .then(txt => alert("✅ บันทึกสำเร็จ"))
-        .catch(err => alert("เกิดข้อผิดพลาด: " + err.message));
+        .then(txt => alert("✅ ส่งข้อมูลสำเร็จ"))
+        .catch(err => alert("❌ เกิดข้อผิดพลาด: " + err.message));
       }, err => {
-        alert("ไม่สามารถดึงตำแหน่งที่ตั้งได้: " + err.message);
+        alert("❌ ไม่สามารถดึงตำแหน่งที่ตั้งได้: " + err.message);
       });
-    }
-
-    function getDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371e3;
-      const toRad = x => x * Math.PI / 180;
-      const dLat = toRad(lat2 - lat1);
-      const dLon = toRad(lon2 - lon1);
-      const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2;
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      return R * c;
     }
   </script>
 </body>
