@@ -91,7 +91,7 @@
 
         if (distance > 200) return alert("คุณอยู่นอกพื้นที่สำนักงาน");
 
-        fetch("https://script.google.com/macros/s/AKfycbyKzPezH4cIXus9tW0LsGp5vy5rDnY6EEmSv7hxmWthwiorqNTjTz4VSSnU9WB-3ofCGA/exec", {
+        fetch("https://script.google.com/macros/s/AKfycbyKzPezH4cIXus9tW0LsGp5vy5rDnY6EEmSv7hxmWthwiorqNTjTz4VSSnU9WB-3ofCGA/exec, {
           method: "POST",
           body: JSON.stringify({ name, action, lat, lng, image: imageData }),
           headers: { "Content-Type": "application/json" }
