@@ -2,15 +2,18 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>ระบบลงเวลา (ไม่ต้องถ่ายรูป)</title>
+  <title>ระบบลงเวลาเข้าออกงาน</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body { font-family: sans-serif; text-align: center; padding: 1rem; }
     select, button { margin-top: 1rem; display: block; width: 100%; max-width: 300px; margin-left: auto; margin-right: auto; }
+    .note { color: red; font-weight: bold; margin-bottom: 1rem; }
   </style>
 </head>
 <body>
-  <h2>ลงเวลาเข้า/ออกงาน (ไม่ต้องถ่ายรูป)</h2>
+  <h2>ลงเวลาเข้า/ออกงาน</h2>
+  <div class="note">❗ กรุณาเปิดตำแหน่ง (GPS) และอนุญาตเมื่อมีการร้องขอ</div>
+
   <select id="employee">
     <option value="">เลือกชื่อพนักงาน</option>
     <option value="นัท">นัท</option>
@@ -39,8 +42,8 @@
     <option value="โซ">โซ</option>
   </select>
 
-  <button onclick="submitTime('เข้างาน')">✅ ลงเวลางานเข้า</button>
-  <button onclick="submitTime('ออกงาน')">⏹ ลงเวลางานออก</button>
+  <button onclick="submitTime('เข้างาน')">เข้างาน</button>
+  <button onclick="submitTime('ออกงาน')">ออกงาน</button>
 
   <script>
     function submitTime(action) {
@@ -55,24 +58,16 @@
         const officeLng = 100.575133;
         const distance = getDistance(lat, lng, officeLat, officeLng);
 
-        if (distance > 200) return alert("คุณอยู่นอกพื้นที่สำนักงาน");
-
-        const data = { name, action, lat, lng };
+        if (distance > 200) return alert("❌ คุณอยู่นอกพื้นที่สำนักงาน (ระยะ: " + Math.round(distance) + " ม.)");
 
         fetch("https://script.google.com/macros/s/AKfycbyKzPezH4cIXus9tW0LsGp5vy5rDnY6EEmSv7hxmWthwiorqNTjTz4VSSnU9WB-3ofCGA/exec", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
+          body: JSON.stringify({ name, action, lat, lng }),
+          headers: { "Content-Type": "application/json" }
         })
-        .then(res => {
-          if (!res.ok) throw new Error("HTTP error " + res.status);
-          return res.text();
-        })
-        .then(txt => alert("✅ ส่งข้อมูลสำเร็จ: " + txt))
-        .catch(err => {
-          alert("❌ เกิดข้อผิดพลาด: " + err.message);
-        });
-
+        .then(res => res.text())
+        .then(txt => alert("✅ บันทึกสำเร็จ: " + txt))
+        .catch(err => alert("❌ เกิดข้อผิดพลาด: " + err.message));
       }, err => {
         alert("❌ ไม่สามารถดึงตำแหน่งที่ตั้งได้: " + err.message);
       });
