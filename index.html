@@ -2,79 +2,62 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>ระบบลงเวลาเข้าออกงาน (Debug)</title>
+  <title>ระบบลงเวลา (ไม่ต้องถ่ายรูป)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body { font-family: sans-serif; text-align: center; padding: 1rem; }
-    select, button, video, img { margin-top: 1rem; display: block; width: 100%; max-width: 300px; margin-left: auto; margin-right: auto; }
-    #preview { margin-top: 1rem; }
+    select, button { margin-top: 1rem; display: block; width: 100%; max-width: 300px; margin-left: auto; margin-right: auto; }
   </style>
 </head>
 <body>
-  <h2>ลงเวลาเข้า/ออกงาน (โหมดตรวจสอบกล้อง)</h2>
+  <h2>ลงเวลาเข้า/ออกงาน (ไม่ต้องถ่ายรูป)</h2>
   <select id="employee">
     <option value="">เลือกชื่อพนักงาน</option>
     <option value="นัท">นัท</option>
     <option value="นัตตี้">นัตตี้</option>
     <option value="Yoko">Yoko</option>
+    <option value="น้ำ">น้ำ</option>
+    <option value="อ้วน">อ้วน</option>
+    <option value="โจช่าง">โจช่าง</option>
+    <option value="ลุงปอ">ลุงปอ</option>
+    <option value="ลิน">ลิน</option>
+    <option value="วิน ชาย">วิน ชาย</option>
+    <option value="ซัน">ซัน</option>
+    <option value="นารี">นารี</option>
+    <option value="เชอรี่">เชอรี่</option>
+    <option value="ทานุ">ทานุ</option>
+    <option value="เมย์ คนใหม่">เมย์ คนใหม่</option>
+    <option value="วิน หญิง">วิน หญิง</option>
+    <option value="เมียะ">เมียะ</option>
+    <option value="เมย์">เมย์</option>
+    <option value="ธรรมรงค์">ธรรมรงค์</option>
+    <option value="ดู รปภ">ดู รปภ</option>
+    <option value="วดี">วดี</option>
+    <option value="คิง">คิง</option>
+    <option value="ตุ้ย">ตุ้ย</option>
+    <option value="วาวา">วาวา</option>
+    <option value="โซ">โซ</option>
   </select>
 
-  <button onclick="openCamera()">📸 ถ่ายรูป</button>
-  <video id="video" autoplay playsinline style="display:none;"></video>
-  <button onclick="capture()">บันทึกรูป</button>
-  <canvas id="canvas" style="display:none;"></canvas>
-  <img id="preview" src="" alt="Preview" />
-
-  <button onclick="submitTime('เข้างาน')">เข้างาน</button>
-  <button onclick="submitTime('ออกงาน')">ออกงาน</button>
+  <button onclick="submitTime('เข้างาน')">✅ ลงเวลางานเข้า</button>
+  <button onclick="submitTime('ออกงาน')">⏹ ลงเวลางานออก</button>
 
   <script>
-    let imageData = "";
-    let video = document.getElementById("video");
-    let canvas = document.getElementById("canvas");
-    let preview = document.getElementById("preview");
-    let stream = null;
-
-    function openCamera() {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        alert("❌ เบราว์เซอร์ของคุณไม่รองรับการเปิดกล้อง");
-        return;
-      }
-
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
-        .then(s => {
-          stream = s;
-          video.srcObject = stream;
-          video.style.display = "block";
-          console.log("✅ กล้องเปิดแล้ว");
-        })
-        .catch(err => {
-          alert("❌ ไม่สามารถเปิดกล้องได้: " + err.message);
-          console.error("Camera error:", err);
-        });
-    }
-
-    function capture() {
-      if (!stream) return alert("⚠️ กล้องยังไม่เปิด");
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      canvas.getContext("2d").drawImage(video, 0, 0);
-      imageData = canvas.toDataURL("image/jpeg", 0.85);
-      preview.src = imageData;
-      preview.style.display = "block";
-      console.log("📸 ถ่ายภาพแล้ว");
-    }
-
     function submitTime(action) {
       const name = document.getElementById("employee").value;
       if (!name) return alert("กรุณาเลือกชื่อพนักงาน");
-      if (!imageData) return alert("กรุณาถ่ายรูปก่อนส่งข้อมูล");
 
       navigator.geolocation.getCurrentPosition(pos => {
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
 
-        const data = { name, action, lat, lng, image: imageData };
+        const officeLat = 13.738127;
+        const officeLng = 100.575133;
+        const distance = getDistance(lat, lng, officeLat, officeLng);
+
+        if (distance > 200) return alert("คุณอยู่นอกพื้นที่สำนักงาน");
+
+        const data = { name, action, lat, lng };
 
         fetch("https://script.google.com/macros/s/AKfycbyKzPezH4cIXus9tW0LsGp5vy5rDnY6EEmSv7hxmWthwiorqNTjTz4VSSnU9WB-3ofCGA/exec", {
           method: "POST",
@@ -82,20 +65,27 @@
           body: JSON.stringify(data)
         })
         .then(res => {
-          if (!res.ok) {
-            throw new Error("HTTP error " + res.status);
-          }
+          if (!res.ok) throw new Error("HTTP error " + res.status);
           return res.text();
         })
         .then(txt => alert("✅ ส่งข้อมูลสำเร็จ: " + txt))
         .catch(err => {
           alert("❌ เกิดข้อผิดพลาด: " + err.message);
-          console.error("❌ fetch error:", err);
         });
 
       }, err => {
         alert("❌ ไม่สามารถดึงตำแหน่งที่ตั้งได้: " + err.message);
       });
+    }
+
+    function getDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371e3;
+      const toRad = x => x * Math.PI / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2;
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
     }
   </script>
 </body>
