@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -45,7 +46,7 @@
             userLng = position.coords.longitude;
             document.getElementById("status").innerText = "✅ ตรวจสอบตำแหน่งเรียบร้อยแล้ว";
           },
-          function () {
+          function (error) {
             document.getElementById("status").innerText = "❌ ไม่สามารถดึงตำแหน่งที่ตั้งได้";
           }
         );
@@ -70,14 +71,9 @@
     function handleSubmit(event) {
       event.preventDefault();
 
-      const officeLocations = {
-        "ไมอามี่49": { lat: 13.73820, lng: 100.57467 },
-        "ไมอามี่43": { lat: 13.75031, lng: 100.55866 }
-      };
-
-      const branch = document.getElementById("branch").value;
-      const office = officeLocations[branch];
-      const distance = calculateDistance(userLat, userLng, office.lat, office.lng);
+      const officeLat = 13.73820;
+      const officeLng = 100.57467;
+      const distance = calculateDistance(userLat, userLng, officeLat, officeLng);
 
       if (distance > 100) {
         alert("❌ คุณอยู่นอกพื้นที่ ไม่สามารถส่งฟอร์มได้");
@@ -101,8 +97,8 @@
         }
       })
       .catch(error => {
+        console.error("Fetch error:", error);
         alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล");
-        console.error(error);
       });
     }
 
@@ -113,7 +109,7 @@
   <h2>แบบฟอร์มเช็คชื่อเข้า - ออกพนักงาน</h2>
   <p id="status">⏳ กำลังตรวจสอบตำแหน่ง...</p>
   <form id="checkinForm" onsubmit="handleSubmit(event)">
-    <label for="branch">เลือกสาขา:</label>
+    <label for="branch">สาขา:</label>
     <select id="branch" name="branch" required>
       <option value="">--เลือกสาขา--</option>
       <option value="ไมอามี่49">ไมอามี่49</option>
@@ -137,8 +133,8 @@
     <label for="event">เหตุการณ์:</label>
     <select id="event" name="event" required>
       <option value="">--เลือกเหตุการณ์--</option>
-      <option value="Check - in เข้ามาทำงาน">Check - in เข้ามาทำงาน</option>
-      <option value="Check - Out ออกจากที่ทำงาน">Check - Out ออกจากที่ทำงาน</option>
+      <option value="Check - in เข้ามาทำงานที่ไมอามี่ 49">Check - in เข้ามาทำงานที่ไมอามี่ 49</option>
+      <option value="Check - Out ออกจากที่ทำงานไมอามี่ 49">Check - Out ออกจากที่ทำงานไมอามี่ 49</option>
       <option value="ลาป่วย มีใบรับรองแพทย์">ลาป่วย มีใบรับรองแพทย์</option>
       <option value="ลาป่วย ไม่มีใบรับรองแพทย์">ลาป่วย ไม่มีใบรับรองแพทย์</option>
       <option value="ลากิจ">ลากิจ</option>
