@@ -45,7 +45,7 @@
             userLng = position.coords.longitude;
             document.getElementById("status").innerText = "✅ ตรวจสอบตำแหน่งเรียบร้อยแล้ว";
           },
-          function (error) {
+          function () {
             document.getElementById("status").innerText = "❌ ไม่สามารถดึงตำแหน่งที่ตั้งได้";
           }
         );
@@ -70,6 +70,11 @@
     function handleSubmit(event) {
       event.preventDefault();
 
+      if (userLat === null || userLng === null) {
+        alert("❌ ไม่สามารถตรวจสอบตำแหน่ง กรุณารีเฟรชหน้าเว็บ");
+        return;
+      }
+
       const officeLat = 13.73820;
       const officeLng = 100.57467;
       const distance = calculateDistance(userLat, userLng, officeLat, officeLng);
@@ -83,24 +88,22 @@
         return;
       }
 
-      const formData = new FormData(document.getElementById("checkinForm"));
+      const form = document.getElementById("checkinForm");
+      const formData = new FormData(form);
       formData.append("latitude", userLat);
       formData.append("longitude", userLng);
 
-      fetch("https://script.google.com/macros/s/AKfycbyKzPezH4cIXus9tW0LsGp5vy5rDnY6EEmSv7hxmWthwiorqNTjTz4VSSnU9WB-3ofCGA/exec", {        
+      fetch("https://script.google.com/macros/s/AKfycbyKzPezH4cIXus9tW0LsGp5vy5rDnY6EEmSv7hxmWthwiorqNTjTz4VSSnU9WB-3ofCGA/exec", {
         method: "POST",
         body: formData
       })
-      .then(response => {
-        if (response.ok) {
-          alert("✅ ส่งข้อมูลเรียบร้อยแล้ว");
-          document.getElementById("checkinForm").reset();
-        } else {
-          alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล");
-        }
+      .then(response => response.text())
+      .then(text => {
+        alert("✅ ส่งข้อมูลเรียบร้อย\n\n" + text);
+        form.reset();
       })
       .catch(error => {
-        console.error("Fetch error:", error);
+        console.error("❌ Fetch error:", error);
         alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล");
       });
     }
