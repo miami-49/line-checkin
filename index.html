@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -27,23 +26,23 @@
       border: none;
       cursor: pointer;
     }
-    #status {
-      font-weight: bold;
-      margin-bottom: 15px;
-    }
+    #status { font-weight: bold; margin-bottom: 15px; }
   </style>
   <script>
-    let userLat = null, userLng = null;
+    let userLat = null;
+    let userLng = null;
 
     function getLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-          pos => {
-            userLat = pos.coords.latitude;
-            userLng = pos.coords.longitude;
+          function (position) {
+            userLat = position.coords.latitude;
+            userLng = position.coords.longitude;
             document.getElementById("status").innerText = "✅ ตรวจสอบตำแหน่งเรียบร้อยแล้ว";
           },
-          () => document.getElementById("status").innerText = "❌ ไม่สามารถดึงตำแหน่งที่ตั้งได้"
+          function (error) {
+            document.getElementById("status").innerText = "❌ ไม่สามารถดึงตำแหน่งที่ตั้งได้";
+          }
         );
       } else {
         document.getElementById("status").innerText = "❌ เบราว์เซอร์ไม่รองรับการดึงตำแหน่ง";
@@ -52,33 +51,27 @@
 
     function calculateDistance(lat1, lon1, lat2, lon2) {
       const R = 6371e3;
-      const toRad = x => x * Math.PI / 180;
-      const dLat = toRad(lat2 - lat1);
-      const dLon = toRad(lon2 - lon1);
-      const a = Math.sin(dLat/2) ** 2 +
-                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-                Math.sin(dLon/2) ** 2;
-      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      const φ1 = lat1 * Math.PI/180;
+      const φ2 = lat2 * Math.PI/180;
+      const Δφ = (lat2 - lat1) * Math.PI/180;
+      const Δλ = (lon2 - lon1) * Math.PI/180;
+      const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                Math.cos(φ1) * Math.cos(φ2) *
+                Math.sin(Δλ/2) * Math.sin(Δλ/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
     }
 
     function handleSubmit(event) {
       event.preventDefault();
 
-      const branch = document.getElementById("branch").value;
-      const locations = {
-        "ไมอามี่49": { lat: 13.73820, lng: 100.57467 },
-        "ไมอามี่43": { lat: 13.75031, lng: 100.55866 }
-      };
-
-      const officeLat = locations[branch].lat;
-      const officeLng = locations[branch].lng;
+      const officeLat = 13.73820;
+      const officeLng = 100.57467;
       const distance = calculateDistance(userLat, userLng, officeLat, officeLng);
 
-      alert("📍 พิกัดคุณ: " + userLat + "," + userLng +
-            "
-📍 ออฟฟิศ: " + officeLat + "," + officeLng +
-            "
-📏 ระยะห่าง: " + Math.round(distance) + " เมตร");
+      alert("📍 พิกัดของคุณ: " + userLat + ", " + userLng +
+            "\n📍 พิกัดออฟฟิศ: " + officeLat + ", " + officeLng +
+            "\n📏 ระยะห่าง: " + Math.round(distance) + " เมตร");
 
       if (distance > 100) {
         alert("❌ คุณอยู่นอกพื้นที่ ไม่สามารถส่งฟอร์มได้");
@@ -93,8 +86,18 @@
         method: "POST",
         body: formData
       })
-      .then(res => res.ok ? alert("✅ ส่งข้อมูลเรียบร้อยแล้ว") : alert("❌ เกิดข้อผิดพลาด"))
-      .catch(err => alert("❌ Error: " + err));
+      .then(response => {
+        if (response.ok) {
+          alert("✅ ส่งข้อมูลเรียบร้อยแล้ว");
+          document.getElementById("checkinForm").reset();
+        } else {
+          alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล");
+        }
+      })
+      .catch(error => {
+        console.error("Fetch error:", error);
+        alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล");
+      });
     }
 
     window.onload = getLocation;
@@ -105,36 +108,36 @@
   <p id="status">⏳ กำลังตรวจสอบตำแหน่ง...</p>
   <form id="checkinForm" onsubmit="handleSubmit(event)">
     <label for="branch">เลือกสาขา:</label>
-    <select id="branch" name="branch" required>
+    <select name="branch" id="branch" required>
       <option value="">--เลือกสาขา--</option>
       <option value="ไมอามี่49">ไมอามี่49</option>
       <option value="ไมอามี่43">ไมอามี่43</option>
     </select>
 
-    <label for="name">ชื่อพนักงาน:</label>
-    <select id="name" name="name" required>
-      <option value="">--เลือกชื่อ--</option>
-      <option value="นัท">นัท</option>
-      <option value="ณัฐกานต์ ตุ้มทองสกุล">ณัฐกานต์ ตุ้มทองสกุล</option>
-      <option value="ฝน">ฝน</option>
-      <option value="บา">บา</option>
-      <option value="แหม่ม">แหม่ม</option>
-      <!-- เพิ่มชื่ออื่นได้ตามต้องการ -->
-    </select>
+    <label for="name">ชื่อ - นามสกุล (EN):</label>
+    <input type="text" id="name" name="name" required />
 
     <label for="department">แผนก:</label>
     <select id="department" name="department" required>
       <option value="">--เลือกแผนก--</option>
-      <option value="แม่บ้าน">แม่บ้าน</option>
-      <option value="ช่าง">ช่าง</option>
-      <option value="รปภ">รปภ</option>
+      <option value="แม่บ้านส่วนกลาง">แม่บ้านส่วนกลาง</option>
+      <option value="แม่บ้านทำห้อง">แม่บ้านทำห้อง</option>
+      <option value="พนักงานประชาสัมพันธ์">พนักงานประชาสัมพันธ์</option>
+      <option value="ช่างบำรุงอาคาร">ช่างบำรุงอาคาร</option>
+      <option value="พนักงานขับรถ">พนักงานขับรถ</option>
+      <option value="พนักงานรักษาความปลอดภัย">พนักงานรักษาความปลอดภัย</option>
     </select>
 
     <label for="event">เหตุการณ์:</label>
     <select id="event" name="event" required>
       <option value="">--เลือกเหตุการณ์--</option>
-      <option value="Check-in">Check-in</option>
-      <option value="Check-out">Check-out</option>
+      <option value="Check - in เข้ามาทำงาน">Check - in เข้ามาทำงาน</option>
+      <option value="Check - Out ออกงาน">Check - Out ออกงาน</option>
+      <option value="ลาป่วย มีใบรับรองแพทย์">ลาป่วย มีใบรับรองแพทย์</option>
+      <option value="ลาป่วย ไม่มีใบรับรองแพทย์">ลาป่วย ไม่มีใบรับรองแพทย์</option>
+      <option value="ลากิจ">ลากิจ</option>
+      <option value="ลาหยุด PH">ลาหยุด PH</option>
+      <option value="วันหยุดประจำสัปดาห์">วันหยุดประจำสัปดาห์</option>
     </select>
 
     <input type="submit" value="ส่งฟอร์ม" />
