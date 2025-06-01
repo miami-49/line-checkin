@@ -74,12 +74,12 @@
     function handleSubmit(event) {
       event.preventDefault();
 
-      const officeLat = 13.738127;
-      const officeLng = 100.575133;
+      const officeLat = 13.73820;
+      const officeLng = 100.57467;
       const distance = calculateDistance(userLat, userLng, officeLat, officeLng);
 alert(
   "📍 พิกัดของคุณ: " + userLat + ", " + userLng + 
-  "\\n📍 พิกัดออฟฟิศ: 13.738127, 100.575133" + 
+  "\\n📍 พิกัดออฟฟิศ: 13.73820, 100.57467" + 
   "\\n📏 ระยะที่คำนวณได้: " + Math.round(distance) + " เมตร"
 );
       if (distance > 300) {
