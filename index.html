@@ -5,11 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>แบบฟอร์มเช็คชื่อเข้า - ออกพนักงาน</title>
   <style>
-    body { font-family: sans-serif; max-width: 500px; margin: auto; padding: 20px; background-color: #f4f4f4; }
-    h2 { color: #2c3e50; }
-    input, select { width: 100%; padding: 8px; margin: 5px 0 15px 0; border: 1px solid #ccc; border-radius: 4px; }
-    input[type="submit"] { background-color: #27ae60; color: white; border: none; cursor: pointer; }
-    #status { font-weight: bold; margin-bottom: 15px; }
+    body {
+      font-family: sans-serif;
+      max-width: 500px;
+      margin: auto;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+    h2 {
+      color: #2c3e50;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0 15px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    input[type="submit"] {
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    #status {
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
   </style>
   <script>
     let userLat = null;
@@ -32,32 +54,11 @@
       }
     }
 
-    function calculateDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371e3;
-      const φ1 = lat1 * Math.PI/180;
-      const φ2 = lat2 * Math.PI/180;
-      const Δφ = (lat2 - lat1) * Math.PI/180;
-      const Δλ = (lon2 - lon1) * Math.PI/180;
-      const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-                Math.cos(φ1) * Math.cos(φ2) *
-                Math.sin(Δλ/2) * Math.sin(Δλ/2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      return R * c;
-    }
-
     function handleSubmit(event) {
       event.preventDefault();
 
-      const officeLat = 13.73820;
-      const officeLng = 100.57467;
-      const distance = calculateDistance(userLat, userLng, officeLat, officeLng);
-
-      if (distance > 100) {
-        alert("❌ คุณอยู่นอกพื้นที่ ไม่สามารถส่งฟอร์มได้");
-        return;
-      }
-
-      const formData = new FormData(document.getElementById("checkinForm"));
+      const form = document.getElementById("checkinForm");
+      const formData = new FormData(form);
       formData.append("latitude", userLat);
       formData.append("longitude", userLng);
 
@@ -68,14 +69,13 @@
       .then(response => {
         if (response.ok) {
           alert("✅ ส่งข้อมูลเรียบร้อยแล้ว");
-          document.getElementById("checkinForm").reset();
+          form.reset();
         } else {
           alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล");
         }
       })
       .catch(error => {
-        console.error("Fetch error:", error);
-        alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล");
+        alert("❌ เกิดข้อผิดพลาด: " + error);
       });
     }
 
@@ -110,8 +110,8 @@
     <label for="event">เหตุการณ์:</label>
     <select id="event" name="event" required>
       <option value="">--เลือกเหตุการณ์--</option>
-      <option value="Check - in เข้ามาทำงานที่ไมอามี่ 49">Check - in เข้ามาทำงานที่ไมอามี่ 49</option>
-      <option value="Check - Out ออกจากที่ทำงานไมอามี่ 49">Check - Out ออกจากที่ทำงานไมอามี่ 49</option>
+      <option value="Check - in เข้ามาทำงาน">Check - in เข้ามาทำงาน</option>
+      <option value="Check - out ออกจากที่ทำงาน">Check - out ออกจากที่ทำงาน</option>
       <option value="ลาป่วย มีใบรับรองแพทย์">ลาป่วย มีใบรับรองแพทย์</option>
       <option value="ลาป่วย ไม่มีใบรับรองแพทย์">ลาป่วย ไม่มีใบรับรองแพทย์</option>
       <option value="ลากิจ">ลากิจ</option>
