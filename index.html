@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>แบบฟอร์มเช็คชื่อเข้า - ออกพนักงาน</title>
   <style>
     body {
@@ -15,9 +15,6 @@
     h2 {
       color: #2c3e50;
     }
-    label {
-      font-weight: bold;
-    }
     input, select {
       width: 100%;
       padding: 8px;
@@ -26,18 +23,14 @@
       border-radius: 4px;
     }
     input[type="submit"] {
-      background-color: #2ecc71;
+      background-color: #27ae60;
       color: white;
       border: none;
       cursor: pointer;
     }
-    input[type="submit"]:hover {
-      background-color: #27ae60;
-    }
     #status {
-      margin-bottom: 15px;
       font-weight: bold;
-      color: #2980b9;
+      margin-bottom: 15px;
     }
   </style>
   <script>
@@ -46,13 +39,16 @@
 
     function getLocation() {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-          userLat = position.coords.latitude;
-          userLng = position.coords.longitude;
-          document.getElementById("status").innerText = "✅ ตรวจสอบตำแหน่งเรียบร้อยแล้ว";
-        }, function(error) {
-          document.getElementById("status").innerText = "❌ ไม่สามารถดึงตำแหน่งที่ตั้งได้";
-        });
+        navigator.geolocation.getCurrentPosition(
+          function (position) {
+            userLat = position.coords.latitude;
+            userLng = position.coords.longitude;
+            document.getElementById("status").innerText = "✅ ตรวจสอบตำแหน่งเรียบร้อยแล้ว";
+          },
+          function (error) {
+            document.getElementById("status").innerText = "❌ ไม่สามารถดึงตำแหน่งที่ตั้งได้";
+          }
+        );
       } else {
         document.getElementById("status").innerText = "❌ เบราว์เซอร์ไม่รองรับการดึงตำแหน่ง";
       }
@@ -77,12 +73,12 @@
       const officeLat = 13.73820;
       const officeLng = 100.57467;
       const distance = calculateDistance(userLat, userLng, officeLat, officeLng);
-alert(
-  "📍 พิกัดของคุณ: " + userLat + ", " + userLng + 
-  "\\n📍 พิกัดออฟฟิศ: 13.73820, 100.57467" + 
-  "\\n📏 ระยะที่คำนวณได้: " + Math.round(distance) + " เมตร"
-);
-      if (distance > 300) {
+
+      alert("📍 พิกัดของคุณ: " + userLat + ", " + userLng +
+            "\n📍 พิกัดออฟฟิศ: " + officeLat + ", " + officeLng +
+            "\n📏 ระยะห่าง: " + Math.round(distance) + " เมตร");
+
+      if (distance > 100) {
         alert("❌ คุณอยู่นอกพื้นที่ ไม่สามารถส่งฟอร์มได้");
         return;
       }
@@ -104,7 +100,7 @@ alert(
         }
       })
       .catch(error => {
-        console.error("Error:", error);
+        console.error("Fetch error:", error);
         alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล");
       });
     }
@@ -117,7 +113,7 @@ alert(
   <p id="status">⏳ กำลังตรวจสอบตำแหน่ง...</p>
   <form id="checkinForm" onsubmit="handleSubmit(event)">
     <label for="name">ชื่อ - นามสกุล (EN):</label>
-    <input type="text" id="name" name="name" required>
+    <input type="text" id="name" name="name" required />
 
     <label for="department">แผนก:</label>
     <select id="department" name="department" required>
@@ -142,7 +138,7 @@ alert(
       <option value="วันหยุดประจำสัปดาห์">วันหยุดประจำสัปดาห์</option>
     </select>
 
-    <input type="submit" value="ส่งฟอร์ม">
+    <input type="submit" value="ส่งฟอร์ม" />
   </form>
 </body>
 </html>
