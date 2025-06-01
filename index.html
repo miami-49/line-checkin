@@ -5,11 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>แบบฟอร์มเช็คชื่อเข้า - ออกพนักงาน</title>
   <style>
-    body { font-family: sans-serif; max-width: 500px; margin: auto; padding: 20px; background-color: #f4f4f4; }
-    h2 { color: #2c3e50; }
-    input, select { width: 100%; padding: 8px; margin: 5px 0 15px 0; border: 1px solid #ccc; border-radius: 4px; }
-    input[type="submit"] { background-color: #27ae60; color: white; border: none; cursor: pointer; }
-    #status { font-weight: bold; margin-bottom: 15px; }
+    body {
+      font-family: sans-serif;
+      max-width: 500px;
+      margin: auto;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+    h2 {
+      color: #2c3e50;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0 15px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    input[type="submit"] {
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    #status {
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
   </style>
   <script>
     let userLat = null;
@@ -23,7 +45,7 @@
             userLng = position.coords.longitude;
             document.getElementById("status").innerText = "✅ ตรวจสอบตำแหน่งเรียบร้อยแล้ว";
           },
-          function () {
+          function (error) {
             document.getElementById("status").innerText = "❌ ไม่สามารถดึงตำแหน่งที่ตั้งได้";
           }
         );
@@ -32,9 +54,39 @@
       }
     }
 
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371e3;
+      const φ1 = lat1 * Math.PI/180;
+      const φ2 = lat2 * Math.PI/180;
+      const Δφ = (lat2 - lat1) * Math.PI/180;
+      const Δλ = (lon2 - lon1) * Math.PI/180;
+      const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                Math.cos(φ1) * Math.cos(φ2) *
+                Math.sin(Δλ/2) * Math.sin(Δλ/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+
     function handleSubmit(event) {
       event.preventDefault();
+
       const form = document.getElementById("checkinForm");
+      const branch = form.branch.value;
+
+      let officeLat = 13.73820;
+      let officeLng = 100.57467;
+      if (branch === "ไมอามี่43") {
+        officeLat = 13.75031;
+        officeLng = 100.55866;
+      }
+
+      const distance = calculateDistance(userLat, userLng, officeLat, officeLng);
+
+      if (distance > 100) {
+        alert("❌ คุณอยู่นอกพื้นที่ ไม่สามารถส่งฟอร์มได้");
+        return;
+      }
+
       const formData = new FormData(form);
       formData.append("latitude", userLat);
       formData.append("longitude", userLng);
@@ -43,16 +95,16 @@
         method: "POST",
         body: formData
       })
-      .then(res => {
-        if (res.ok) {
+      .then(response => {
+        if (response.ok) {
           alert("✅ ส่งข้อมูลเรียบร้อยแล้ว");
           form.reset();
         } else {
           alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล");
         }
       })
-      .catch(err => {
-        console.error("Error:", err);
+      .catch(error => {
+        console.error("Fetch error:", error);
         alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล");
       });
     }
