@@ -5,33 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>แบบฟอร์มเช็คชื่อเข้า - ออกพนักงาน</title>
   <style>
-    body {
-      font-family: sans-serif;
-      max-width: 500px;
-      margin: auto;
-      padding: 20px;
-      background-color: #f4f4f4;
-    }
-    h2 {
-      color: #2c3e50;
-    }
-    input, select {
-      width: 100%;
-      padding: 8px;
-      margin: 5px 0 15px 0;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    input[type="submit"] {
-      background-color: #27ae60;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    #status {
-      font-weight: bold;
-      margin-bottom: 15px;
-    }
+    body { font-family: sans-serif; max-width: 500px; margin: auto; padding: 20px; background-color: #f4f4f4; }
+    h2 { color: #2c3e50; }
+    input, select { width: 100%; padding: 8px; margin: 5px 0 15px 0; border: 1px solid #ccc; border-radius: 4px; }
+    input[type="submit"] { background-color: #27ae60; color: white; border: none; cursor: pointer; }
+    #status { font-weight: bold; margin-bottom: 15px; }
   </style>
   <script>
     let userLat = null;
@@ -45,7 +23,7 @@
             userLng = position.coords.longitude;
             document.getElementById("status").innerText = "✅ ตรวจสอบตำแหน่งเรียบร้อยแล้ว";
           },
-          function (error) {
+          function () {
             document.getElementById("status").innerText = "❌ ไม่สามารถดึงตำแหน่งที่ตั้งได้";
           }
         );
@@ -56,7 +34,6 @@
 
     function handleSubmit(event) {
       event.preventDefault();
-
       const form = document.getElementById("checkinForm");
       const formData = new FormData(form);
       formData.append("latitude", userLat);
@@ -66,16 +43,17 @@
         method: "POST",
         body: formData
       })
-      .then(response => {
-        if (response.ok) {
+      .then(res => {
+        if (res.ok) {
           alert("✅ ส่งข้อมูลเรียบร้อยแล้ว");
           form.reset();
         } else {
           alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล");
         }
       })
-      .catch(error => {
-        alert("❌ เกิดข้อผิดพลาด: " + error);
+      .catch(err => {
+        console.error("Error:", err);
+        alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล");
       });
     }
 
@@ -111,7 +89,7 @@
     <select id="event" name="event" required>
       <option value="">--เลือกเหตุการณ์--</option>
       <option value="Check - in เข้ามาทำงาน">Check - in เข้ามาทำงาน</option>
-      <option value="Check - out ออกจากที่ทำงาน">Check - out ออกจากที่ทำงาน</option>
+      <option value="Check - Out ออกจากที่ทำงาน">Check - Out ออกจากที่ทำงาน</option>
       <option value="ลาป่วย มีใบรับรองแพทย์">ลาป่วย มีใบรับรองแพทย์</option>
       <option value="ลาป่วย ไม่มีใบรับรองแพทย์">ลาป่วย ไม่มีใบรับรองแพทย์</option>
       <option value="ลากิจ">ลากิจ</option>
