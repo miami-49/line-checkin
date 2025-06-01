@@ -87,22 +87,22 @@
       formData.append("latitude", userLat);
       formData.append("longitude", userLng);
 
-fetch("https://script.google.com/macros/s/AKfycbyKzPezH4cIXus9tW0LsGp5vy5rDnY6EEmSv7hxmWthwiorqNTjTz4VSSnU9WB-3ofCGA/exec", {
-  method: "POST",
-  body: formData
-})
-.then(response => {
-  if (response.ok) {
-    alert("✅ ส่งข้อมูลเรียบร้อยแล้ว");
-    document.getElementById("checkinForm").reset();
-  } else {
-    alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล");
-  }
-})
-.catch(error => {
-  console.error("Fetch error:", error);
-  alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล");
-});
+      fetch("https://script.google.com/macros/s/AKfycbyKzPezH4cIXus9tW0LsGp5vy5rDnY6EEmSv7hxmWthwiorqNTjTz4VSSnU9WB-3ofCGA/exec", {
+        method: "POST",
+        body: formData
+      })
+      .then(response => {
+        if (response.ok) {
+          alert("✅ ส่งข้อมูลเรียบร้อยแล้ว");
+          document.getElementById("checkinForm").reset();
+        } else {
+          alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล");
+        }
+      })
+      .catch(error => {
+        console.error("Fetch error:", error);
+        alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล");
+      });
     }
 
     window.onload = getLocation;
