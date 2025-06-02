@@ -5,33 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>แบบฟอร์มเช็คชื่อเข้า - ออกพนักงาน</title>
   <style>
-    body {
-      font-family: sans-serif;
-      max-width: 500px;
-      margin: auto;
-      padding: 20px;
-      background-color: #f4f4f4;
-    }
-    h2 {
-      color: #2c3e50;
-    }
-    input, select {
-      width: 100%;
-      padding: 8px;
-      margin: 5px 0 15px 0;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    input[type="submit"] {
-      background-color: #27ae60;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    #status {
-      font-weight: bold;
-      margin-bottom: 15px;
-    }
+    body { font-family: sans-serif; max-width: 500px; margin: auto; padding: 20px; background-color: #f4f4f4; }
+    h2 { color: #2c3e50; }
+    input, select { width: 100%; padding: 8px; margin: 5px 0 15px 0; border: 1px solid #ccc; border-radius: 4px; }
+    input[type="submit"] { background-color: #27ae60; color: white; border: none; cursor: pointer; }
+    #status { font-weight: bold; margin-bottom: 15px; }
   </style>
   <script>
     let userLat = null;
@@ -45,7 +23,7 @@
             userLng = position.coords.longitude;
             document.getElementById("status").innerText = "✅ ตรวจสอบตำแหน่งเรียบร้อยแล้ว";
           },
-          function (error) {
+          function () {
             document.getElementById("status").innerText = "❌ ไม่สามารถดึงตำแหน่งที่ตั้งได้";
           }
         );
@@ -72,7 +50,6 @@
 
       const form = document.getElementById("checkinForm");
       const branch = form.branch.value;
-
       let officeLat = 13.73820;
       let officeLng = 100.57467;
       if (branch === "ไมอามี่43") {
@@ -91,7 +68,7 @@
       formData.append("latitude", userLat);
       formData.append("longitude", userLng);
 
-      fetch("https://script.google.com/macros/s/AKfycbyKzPezH4cIXus9tW0LsGp5vy5rDnY6EEmSv7hxmWthwiorqNTjTz4VSSnU9WB-3ofCGA/exec", {
+      fetch("https://script.google.com/macros/s/YOUR_DEPLOYED_URL/exec", {
         method: "POST",
         body: formData
       })
