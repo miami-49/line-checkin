@@ -5,52 +5,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>แบบฟอร์มเช็คชื่อเข้า - ออกพนักงาน</title>
   <style>
-    body {
-      font-family: sans-serif;
-      max-width: 500px;
-      margin: auto;
-      padding: 20px;
-      background-color: #f4f4f4;
-    }
-    h2 {
-      color: #2c3e50;
-    }
+    body { font-family: sans-serif; max-width: 500px; margin: auto; padding: 20px; background-color: #f4f4f4; }
+    h2 { color: #2c3e50; }
     input, select {
-      width: 100%;
-      padding: 8px;
-      margin: 5px 0 15px 0;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      width: 100%; padding: 8px; margin: 5px 0 15px 0;
+      border: 1px solid #ccc; border-radius: 4px;
     }
     input[type="submit"] {
-      background-color: #27ae60;
-      color: white;
-      border: none;
-      cursor: pointer;
+      background-color: #27ae60; color: white; border: none; cursor: pointer;
     }
-    #status {
-      font-weight: bold;
-      margin-bottom: 15px;
-    }
+    #status { font-weight: bold; margin-bottom: 15px; }
   </style>
   <script>
+    const staff = {
+      "ไมอามี่49": ["นัท", "ณัฐกานต์ ตุ้มทองสกุล", "รวีพลอย ฤกษ์บังเกิดผล", "ทิพกฤตา ซอเฮง", "ช่างโจ", "ลุงปอ"],
+      "ไมอามี่43": ["ฝน", "มิ", "บา", "ซันฮา San Ha", "แก้ว", "วรรณ"]
+    };
+
     let userLat = null;
     let userLng = null;
 
     function getLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-          function (position) {
-            userLat = position.coords.latitude;
-            userLng = position.coords.longitude;
+          pos => {
+            userLat = pos.coords.latitude;
+            userLng = pos.coords.longitude;
             document.getElementById("status").innerText = "✅ ตรวจสอบตำแหน่งเรียบร้อยแล้ว";
           },
-          function (error) {
+          () => {
             document.getElementById("status").innerText = "❌ ไม่สามารถดึงตำแหน่งที่ตั้งได้";
           }
         );
-      } else {
-        document.getElementById("status").innerText = "❌ เบราว์เซอร์ไม่รองรับการดึงตำแหน่ง";
       }
     }
 
@@ -61,23 +47,33 @@
       const Δφ = (lat2 - lat1) * Math.PI/180;
       const Δλ = (lon2 - lon1) * Math.PI/180;
       const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-                Math.cos(φ1) * Math.cos(φ2) *
-                Math.sin(Δλ/2) * Math.sin(Δλ/2);
+                Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
       return R * c;
     }
 
-    function handleSubmit(event) {
-      event.preventDefault();
+    function updateStaffOptions() {
+      const branch = document.getElementById("branch").value;
+      const staffSelect = document.getElementById("name");
+      staffSelect.innerHTML = '<option value="">--เลือกพนักงาน--</option>';
+      if (staff[branch]) {
+        staff[branch].forEach(name => {
+          const opt = document.createElement("option");
+          opt.value = name;
+          opt.text = name;
+          staffSelect.add(opt);
+        });
+      }
+    }
 
+    function handleSubmit(e) {
+      e.preventDefault();
       const form = document.getElementById("checkinForm");
       const branch = form.branch.value;
 
-      let officeLat = 13.73820;
-      let officeLng = 100.57467;
+      let officeLat = 13.73820, officeLng = 100.57467;
       if (branch === "ไมอามี่43") {
-        officeLat = 13.75031;
-        officeLng = 100.55866;
+        officeLat = 13.75031; officeLng = 100.55866;
       }
 
       const distance = calculateDistance(userLat, userLng, officeLat, officeLng);
@@ -92,20 +88,17 @@
 
       fetch("https://script.google.com/macros/s/AKfycbyKzPezH4cIXus9tW0LsGp5vy5rDnY6EEmSv7hxmWthwiorqNTjTz4VSSnU9WB-3ofCGA/exec", {
         method: "POST",
-        mode: "no-cors",
-        body: formData
+        body: formData,
+        mode: "no-cors"
       })
-      .then(() => {
-        alert("✅ ส่งข้อมูลเรียบร้อยแล้ว");
-        form.reset();
-      })
-      .catch(error => {
-        console.error("Fetch error:", error);
-        alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล");
-      });
+      .then(() => alert("✅ ส่งข้อมูลเรียบร้อยแล้ว"))
+      .catch(() => alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล"));
     }
 
-    window.onload = getLocation;
+    window.onload = () => {
+      getLocation();
+      document.getElementById("branch").addEventListener("change", updateStaffOptions);
+    };
   </script>
 </head>
 <body>
@@ -119,8 +112,10 @@
       <option value="ไมอามี่43">ไมอามี่43</option>
     </select>
 
-    <label for="name">ชื่อ - นามสกุล (EN):</label>
-    <input type="text" id="name" name="name" required />
+    <label for="name">ชื่อ - นามสกุล:</label>
+    <select id="name" name="name" required>
+      <option value="">--เลือกพนักงาน--</option>
+    </select>
 
     <label for="department">แผนก:</label>
     <select id="department" name="department" required>
