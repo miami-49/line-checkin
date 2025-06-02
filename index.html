@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -22,6 +23,12 @@
       border-radius: 4px;
       border: 1px solid #ccc;
     }
+    input[type="submit"] {
+      background-color: #2ecc71 !important;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
     #status {
       margin-top: 10px;
       font-weight: bold;
@@ -29,9 +36,18 @@
   </style>
   <script>
     const employees = {
-  "ไมอามี่49": ["นัท", "ณัฐกานต์ ตุ้มทองสกุล", "รวีพลอย ฤกษ์บังเกิดผล", "ทิพกฤตา ซอเฮง", "ช่างโจ", "ลุงปอ", "ลิน", "วิน ชาย WIN SWE", "ซัน หม่า ซาน", "นารี Nan Li", "เชอรี่", "ทานุ", "เมย์ ใหม่ San San May", "วิน หญิง", "เมียะ Aye Mya", "เมย์", "ธรรมรงค์ ทันตเสถียรวงศ์", "อารีย์", "ดู", "วดี", "คิง", "ตุ้ย CHIT HTWE", "วาวา", "โซ TIN NEW NI SOE", "ช่างศรี", "ลุงเหรียญ"],
-  "ไมอามี่43": ["ฝน", "มิ", "บา", "ซันฮา San Ha NAY HTUN WIN", "แก้ว", "วรรณ", "จุ๋ม ประไพรัตน์", "แหม่ม", "ฝน - 19Apt", "แป๊ะ", "สี", "ใจ", "โพเซ็น PHOE SEIN", "โจลุย KYAW LWIN", "ยู Win Nyo", "อู ZAY YA OO", "เต็นเพ THEIN PHAY", "ลุงซุย", "โจ ตึก 4", "โจเลย์ KYAW THU HLAING"],
-};
+      "ไมอามี่49": [
+        "นัท", "ณัฐกานต์ ตุ้มทองสกุล", "รวีพลอย ฤกษ์บังเกิดผล", "ทิพกฤตา ซอเฮง", "ช่างโจ", "ลุงปอ",
+        "ลิน", "วิน ชาย WIN SWE", "ซัน หม่า ซาน", "นารี Nan Li", "เชอรี่", "ทานุ", "เมย์ ใหม่ San San May",
+        "วิน หญิง", "เมียะ Aye Mya", "เมย์", "ธรรมรงค์ ทันตเสถียรวงศ์", "อารีย์", "ดู", "วดี", "คิง",
+        "ตุ้ย CHIT HTWE", "วาวา", "โซ TIN NEW NI SOE", "ช่างศรี", "ลุงเหรียญ"
+      ],
+      "ไมอามี่43": [
+        "ฝน", "มิ", "บา", "ซันฮา San Ha NAY HTUN WIN", "แก้ว", "วรรณ", "จุ๋ม ประไพรัตน์", "แหม่ม",
+        "ฝน - 19Apt", "แป๊ะ", "สี", "ใจ", "โพเซ็น PHOE SEIN", "โจลุย KYAW LWIN", "ยู Win Nyo",
+        "อู ZAY YA OO", "เต็นเพ THEIN PHAY", "ลุงซุย", "โจ ตึก 4", "โจเลย์ KYAW THU HLAING"
+      ]
+    };
 
     let userLat = null, userLng = null;
 
@@ -89,7 +105,7 @@
       formData.append("latitude", userLat);
       formData.append("longitude", userLng);
 
-      fetch("https://script.google.com/macros/s/AKfycbyKzPezH4cIXus9tW0LsGp5vy5rDnY6EEmSv7hxmWthwiorqNTjTz4VSSnU9WB-3ofCGA/exec", {
+      fetch("https://script.google.com/macros/s/YOUR_DEPLOYED_URL/exec", {
         method: "POST",
         mode: "no-cors",
         body: formData
