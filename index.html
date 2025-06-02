@@ -1,72 +1,93 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>แบบฟอร์มเช็คชื่อเข้า - ออกพนักงาน</title>
+  <title>ระบบเช็คชื่อเข้า - ออก</title>
   <style>
-    body { font-family: sans-serif; max-width: 500px; margin: auto; padding: 20px; background-color: #f4f4f4; }
-    h2 { color: #2c3e50; }
-    input, select { width: 100%; padding: 8px; margin: 5px 0 15px 0; border: 1px solid #ccc; border-radius: 4px; }
-    input[type="submit"] { background-color: #27ae60; color: white; border: none; cursor: pointer; }
-    #status { font-weight: bold; margin-bottom: 15px; }
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+    h2 {
+      color: #2c3e50;
+    }
+    select, input[type="submit"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    #status {
+      margin-top: 10px;
+      font-weight: bold;
+    }
   </style>
   <script>
     const employees = {
-      "ไมอามี่49": ["นัท", "ณัฐกานต์ ตุ้มทองสกุล", "รวีพลอย ฤกษ์บังเกิดผล"],
-      "ไมอามี่43": ["ฝน", "มิ", "บา", "ซันฮา San Ha"]
+      "ไมอามี่49": [
+        "นัท", "ณัฐกานต์ ตุ้มทองสกุล", "รวีพลอย ฤกษ์บังเกิดผล", "ทิพกฤตา ซอเฮง", "ช่างโจ", "ลุงปอ",
+        "ลิน", "วิน ชาย WIN SWE", "ซัน หม่า ซาน", "นารี Nan Li", "เชอรี่", "ทานุ", "เมย์ ใหม่ San San May",
+        "วิน หญิง", "เมียะ Aye Mya", "เมย์", "ธรรมรงค์ ทันตเสถียรวงศ์", "อารีย์", "ดู", "วดี", "คิง",
+        "ตุ้ย CHIT HTWE", "วาวา", "โซ TIN NEW NI SOE", "ช่างศรี", "ลุงเหรียญ"
+      ],
+      "ไมอามี่43": [
+        "ฝน", "มิ", "บา", "ซันฮา San Ha NAY HTUN WIN", "แก้ว", "วรรณ", "จุ๋ม ประไพรัตน์", "แหม่ม",
+        "ฝน - 19Apt", "แป๊ะ", "สี", "ใจ", "โพเซ็น PHOE SEIN", "โจลุย KYAW LWIN", "ยู Win Nyo",
+        "อู ZAY YA OO", "เต็นเพ THEIN PHAY", "ลุงซุย", "โจ ตึก 4", "โจเลย์ KYAW THU HLAING"
+      ]
     };
-
-    function updateNames() {
-      const branch = document.getElementById("branch").value;
-      const nameSelect = document.getElementById("name");
-      nameSelect.innerHTML = '<option value="">--เลือกพนักงาน--</option>';
-      if (employees[branch]) {
-        employees[branch].forEach(name => {
-          const option = document.createElement("option");
-          option.value = name;
-          option.text = name;
-          nameSelect.appendChild(option);
-        });
-      }
-    }
 
     let userLat = null, userLng = null;
 
     function getLocation() {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          pos => {
-            userLat = pos.coords.latitude;
-            userLng = pos.coords.longitude;
-            document.getElementById("status").innerText = "✅ ตรวจสอบตำแหน่งเรียบร้อยแล้ว";
-          },
-          () => document.getElementById("status").innerText = "❌ ไม่สามารถดึงตำแหน่งที่ตั้งได้"
-        );
-      } else {
-        document.getElementById("status").innerText = "❌ เบราว์เซอร์ไม่รองรับการดึงตำแหน่ง";
+        navigator.geolocation.getCurrentPosition(position => {
+          userLat = position.coords.latitude;
+          userLng = position.coords.longitude;
+          document.getElementById("status").innerText = "✅ ตรวจสอบตำแหน่งเรียบร้อยแล้ว";
+        }, () => {
+          document.getElementById("status").innerText = "❌ ไม่สามารถดึงตำแหน่งที่ตั้งได้";
+        });
       }
     }
 
-    function calculateDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371e3;
-      const φ1 = lat1 * Math.PI/180, φ2 = lat2 * Math.PI/180;
-      const Δφ = (lat2 - lat1) * Math.PI/180, Δλ = (lon2 - lon1) * Math.PI/180;
-      const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-                Math.cos(φ1) * Math.cos(φ2) *
-                Math.sin(Δλ/2) * Math.sin(Δλ/2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      return R * c;
+    function updateEmployeeList() {
+      const branch = document.getElementById("branch").value;
+      const employeeSelect = document.getElementById("name");
+      employeeSelect.innerHTML = "";
+      if (employees[branch]) {
+        employees[branch].forEach(name => {
+          const option = document.createElement("option");
+          option.value = name;
+          option.text = name;
+          employeeSelect.appendChild(option);
+        });
+      }
     }
 
     function handleSubmit(event) {
       event.preventDefault();
+
       const branch = document.getElementById("branch").value;
       let officeLat = 13.73820, officeLng = 100.57467;
-      if (branch === "ไมอามี่43") { officeLat = 13.75031; officeLng = 100.55866; }
+      if (branch === "ไมอามี่43") {
+        officeLat = 13.75031;
+        officeLng = 100.55866;
+      }
 
-      const distance = calculateDistance(userLat, userLng, officeLat, officeLng);
+      const R = 6371e3;
+      const φ1 = userLat * Math.PI/180, φ2 = officeLat * Math.PI/180;
+      const Δφ = (officeLat - userLat) * Math.PI/180;
+      const Δλ = (officeLng - userLng) * Math.PI/180;
+      const a = Math.sin(Δφ/2) ** 2 + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) ** 2;
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const distance = R * c;
+
       if (distance > 100) {
         alert("❌ คุณอยู่นอกพื้นที่ ไม่สามารถส่งฟอร์มได้");
         return;
@@ -78,32 +99,39 @@
       formData.append("longitude", userLng);
 
       fetch("https://script.google.com/macros/s/AKfycbyKzPezH4cIXus9tW0LsGp5vy5rDnY6EEmSv7hxmWthwiorqNTjTz4VSSnU9WB-3ofCGA/exec", {
-        method: "POST", body: formData, mode: "no-cors"
-      })
-      .then(() => { alert("✅ ส่งข้อมูลเรียบร้อยแล้ว"); form.reset(); })
-      .catch(error => { console.error("Fetch error:", error); alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล"); });
+        method: "POST",
+        mode: "no-cors",
+        body: formData
+      }).then(() => {
+        alert("✅ ส่งข้อมูลเรียบร้อยแล้ว");
+        form.reset();
+      }).catch(() => {
+        alert("❌ เกิดข้อผิดพลาดในการส่งข้อมูล");
+      });
     }
 
-    window.onload = () => { getLocation(); };
+    window.onload = () => {
+      getLocation();
+      document.getElementById("branch").addEventListener("change", updateEmployeeList);
+    };
   </script>
 </head>
 <body>
-  <h2>แบบฟอร์มเช็คชื่อเข้า - ออกพนักงาน</h2>
+  <h2>แบบฟอร์มเช็คชื่อเข้า - ออก</h2>
   <p id="status">⏳ กำลังตรวจสอบตำแหน่ง...</p>
   <form id="checkinForm" onsubmit="handleSubmit(event)">
     <label for="branch">สาขา:</label>
-    <select id="branch" name="branch" onchange="updateNames()" required>
+    <select id="branch" name="branch" required>
       <option value="">--เลือกสาขา--</option>
       <option value="ไมอามี่49">ไมอามี่49</option>
       <option value="ไมอามี่43">ไมอามี่43</option>
     </select>
 
-    <label for="name">ชื่อ - นามสกุล (EN):</label>
-    <select id="name" name="name" required><option value="">--เลือกพนักงาน--</option></select>
+    <label for="name">ชื่อพนักงาน:</label>
+    <select id="name" name="name" required></select>
 
     <label for="department">แผนก:</label>
     <select id="department" name="department" required>
-      <option value="">--เลือกแผนก--</option>
       <option value="แม่บ้านส่วนกลาง">แม่บ้านส่วนกลาง</option>
       <option value="แม่บ้านทำห้อง">แม่บ้านทำห้อง</option>
       <option value="พนักงานประชาสัมพันธ์">พนักงานประชาสัมพันธ์</option>
@@ -114,7 +142,6 @@
 
     <label for="event">เหตุการณ์:</label>
     <select id="event" name="event" required>
-      <option value="">--เลือกเหตุการณ์--</option>
       <option value="Check - in เข้ามาทำงาน">Check - in เข้ามาทำงาน</option>
       <option value="Check - Out ออกจากที่ทำงาน">Check - Out ออกจากที่ทำงาน</option>
       <option value="ลาป่วย มีใบรับรองแพทย์">ลาป่วย มีใบรับรองแพทย์</option>
